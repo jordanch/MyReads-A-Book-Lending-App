@@ -19,3 +19,13 @@ export function safe(fn, fallBackType) {
         }
     }
 }
+
+export function isEmptyReferenceType(refType) {
+    if (refType instanceof Object) {
+        if (Object.keys(refType).length === 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}

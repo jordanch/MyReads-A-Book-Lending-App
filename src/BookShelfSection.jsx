@@ -6,10 +6,12 @@ class BookShelfSection extends Component {
 
     static propTypes = {
         sectionName: PropTypes.string.isRequired,
-        books: PropTypes.array.isRequired
+        books: PropTypes.array.isRequired,
+        onBookShelfChange: PropTypes.func.isRequired
     }
 
     render() {
+        const { onBookShelfChange } = this.props;
         return (
             <div>
                 <h2 className="bookshelf-title">{this.props.sectionName}</h2>
@@ -19,7 +21,9 @@ class BookShelfSection extends Component {
                             this.props.books.map((book) => {
                                 return (
                                     <li key={book.id}>
-                                        <Book book={book}/>
+                                        <Book
+                                            book={book}
+                                            onBookShelfChange={onBookShelfChange}/>
                                     </li>
                                 )
                             })
