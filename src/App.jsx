@@ -20,7 +20,7 @@ class BooksApp extends React.Component {
           exact path="/"
           render={() => {
             return (
-              <Overview appName={appName} />
+              <Overview appName={appName}/>
             )
           }}
         />

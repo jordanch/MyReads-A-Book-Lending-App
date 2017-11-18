@@ -9,7 +9,7 @@ import BookShelfSection from "./BookShelfSection";
 class Overview extends Component {
 
     static propTypes = {
-        appName: PropTypes.string.isRequired
+        appName: PropTypes.string.isRequired,
     };
 
     constructor(props) {
@@ -53,7 +53,8 @@ class Overview extends Component {
         Object.keys(currentBookShelfState).forEach(shelfKey => {
             updatedGroupedBooks[shelfKey] = currentBookShelfState[shelfKey]
                 .map(getBook)
-                .filter(book => !isNullOrUndefined(book));;
+                .map(updateBookShelf.bind(null, shelfKey))
+                .filter(book => !isNullOrUndefined(book));
         })
 
         function getBook(bookId) {
@@ -65,15 +66,21 @@ class Overview extends Component {
             }
         }
 
+        function updateBookShelf(shelfId, book) {
+            return Object.assign({}, book, {shelf: shelfId});
+        }
+
         this.setState({
             groupedBooks: updatedGroupedBooks
         });
     }
 
-    handleBookShelfChange(client) {
+    handleBookShelfChange(client, callBack) {
         update(client.book, client.shelf).then(groupResponse => {
             this.updateGroupedBooks(groupResponse);
+            callBack();
         })
+
     }
 
     render() {
