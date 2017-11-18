@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { safe } from "./utils/type";
 
 class Book extends Component {
 
@@ -27,7 +28,7 @@ class Book extends Component {
         return (
             <div className="book">
                 <div className="book-top">
-                    <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                    <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${ safe(() => book.imageLinks.thumbnail, null)})` }}></div>
                     <div className="book-shelf-changer">
                         <select value={this.state.bookShelf} onChange={this.handleChange}>
                             <option value="none" disabled>Move to...</option>
@@ -39,7 +40,7 @@ class Book extends Component {
                     </div>
                 </div>
                 <div className="book-title">{book.title}</div>
-                <div className="book-authors">{book.authors.join(', ')}</div>
+                <div className="book-authors">{safe(() => book.authors.join(', '), null)}</div>
             </div>
         )
     }
