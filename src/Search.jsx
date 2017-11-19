@@ -4,6 +4,7 @@ import { Link, Redirect } from 'react-router-dom';
 import { search, update } from "./BooksAPI";
 import Book from "./Book";
 import debounce from "lodash.debounce";
+import escapedString from "escape-string-regexp";
 import "./Search.css";
 
 class Search extends Component {
@@ -29,7 +30,7 @@ class Search extends Component {
     }
 
     handleChange(e) {
-        const { value } = e.target;
+        const value = escapedString(e.target.value);
         e.preventDefault();
         if (value !== '') {
             this.rejectResponse = false;

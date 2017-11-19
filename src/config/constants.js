@@ -1,3 +1,3 @@
 export const constants = {
-    appName: "Jordan's Bookshelf!"
+    appName: "Book Shelf"
 }
