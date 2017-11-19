@@ -12,12 +12,11 @@ class Search extends Component {
         history: PropTypes.object.isRequired
     }
 
-    // TODO: fix input stutter.
     constructor(props) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
         this.makeSearch = debounce(this.makeSearch.bind(this), 1000, {
-            leading: true,
+            leading: false,
             trailing: true
         });
         this.handleBookShelfChangeRequest = this.handleBookShelfChangeRequest.bind(this);
@@ -32,11 +31,21 @@ class Search extends Component {
     handleChange(e) {
         const { value } = e.target;
         e.preventDefault();
-        this.setState({
-            query: value,
-            isFetching: true
-        });
-        this.makeSearch(value);
+        if (value !== '') {
+            this.rejectResponse = false;
+            this.setState({
+                query: value,
+                isFetching: true
+            });
+            this.makeSearch(value);
+        } else {
+            this.rejectResponse = true;
+            this.setState({
+                query: '',
+                matchingBooks: [],
+                isFetching: false
+            });
+        }
     }
 
     handleBookShelfChangeRequest(client) {
@@ -50,10 +59,12 @@ class Search extends Component {
 
     makeSearch(query) {
         search(query).then(books => {
-            this.setState({
-                matchingBooks: Array.isArray(books) ? books : [],
-                isFetching: false
-            });
+            if (this.rejectResponse !== true) {
+                this.setState({
+                    matchingBooks: Array.isArray(books) ? books : [],
+                    isFetching: false
+                });
+            }
         })
     }
 
@@ -75,7 +86,7 @@ class Search extends Component {
         );
 
         const IsLoading = () => (
-            <div className="search-books-loading">
+            <div className="loading-text">
                 ...Loading
             </div>
         )

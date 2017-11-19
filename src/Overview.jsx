@@ -18,7 +18,8 @@ class Overview extends Component {
     }
 
     state = {
-        groupedBooks: null
+        groupedBooks: null,
+        isLoading: false
     }
 
     shelfIdNameMap = {
@@ -28,10 +29,14 @@ class Overview extends Component {
     }
 
     componentDidMount() {
+        this.setState({
+            isLoading: true
+        });
         getAll().then(books => {
             const groupedBooks = this.groupBooksByShelf(books);
             this.setState({
-                groupedBooks: groupedBooks
+                groupedBooks: groupedBooks,
+                isLoading: false
             });
         })
     }
@@ -67,7 +72,7 @@ class Overview extends Component {
         }
 
         function updateBookShelf(shelfId, book) {
-            return Object.assign({}, book, {shelf: shelfId});
+            return Object.assign({}, book, { shelf: shelfId });
         }
 
         this.setState({
@@ -76,9 +81,13 @@ class Overview extends Component {
     }
 
     handleBookShelfChange(client, callBack) {
+        this.setState({ isLoading: true });
         update(client.book, client.shelf).then(groupResponse => {
             this.updateGroupedBooks(groupResponse);
             callBack();
+            this.setState({
+                isLoading: false
+            });
         })
 
     }
@@ -87,21 +96,24 @@ class Overview extends Component {
         const { groupedBooks } = this.state;
 
         const Header = () => {
-           return (
+            return (
                 <div className="list-books-title">
                     <h1>{this.props.appName}</h1>
                 </div>
             )
         };
 
-        if (isEmptyReferenceType(groupedBooks) || isNullOrUndefined(groupedBooks)) {
+        const Loading = () => (
+            <div className="list-loading">
+                <p className="loading-text">Loading...</p>
+            </div>
+        )
 
-            return <Header/>
-        } else {
-
-            return (
-                <div className="list-books" >
-                    <Header/>
+        const Books = () => {
+            if (isEmptyReferenceType(groupedBooks) || isNullOrUndefined(groupedBooks)) {
+                return null;
+            } else {
+                return (
                     <div className="list-books-content">
                         {
                             Object.keys(groupedBooks).map(sectionId => {
@@ -117,12 +129,26 @@ class Overview extends Component {
                             })
                         }
                     </div>
-                    <div className="open-search">
-                        <Link to="/search">Add a book</Link>
-                    </div>
-                </div>
-            );
+                )
+            }
         }
+
+        const { isLoading } = this.state;
+
+        return (
+            <div className="list-books" >
+                <Header />
+                {isLoading === true ?
+                    <Loading />
+                    :
+                    <Books />
+                }
+
+                <div className="open-search">
+                    <Link to="/search">Add a book</Link>
+                </div>
+            </div>
+        );
     }
 }
 

@@ -31,6 +31,14 @@ body, .app {
   flex: 1;
 }
 
+.list-loading {
+  margin-top: 20px;
+}
+
+.list-books-loading {
+  text-align: center;
+}
+
 .bookshelf {
   padding: 0 10px 20px;
 }

@@ -3,7 +3,7 @@
     --dark: #34495e;
 }
 
-.search-books-loading {
+.loading-text {
       text-align: center;
       display: flex;
       justify-content: center;
