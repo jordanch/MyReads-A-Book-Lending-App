@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { getAll, update } from "./BooksAPI";
 import { isNullOrUndefined, isEmptyReferenceType } from "./utils/type";
-import groupBy from "lodash.groupby";
 import BookShelfSection from "./BookShelfSection";
 
 class Overview extends Component {
 
     static propTypes = {
         appName: PropTypes.string.isRequired,
+        setAllBooks: PropTypes.function.isRequired
     };
 
     constructor(props) {
@@ -33,16 +33,8 @@ class Overview extends Component {
             isLoading: true
         });
         getAll().then(books => {
-            const groupedBooks = this.groupBooksByShelf(books);
-            this.setState({
-                groupedBooks: groupedBooks,
-                isLoading: false
-            });
+            this.props.setAllBooks(books);
         })
-    }
-
-    groupBooksByShelf(books) {
-        return groupBy(books, 'shelf');
     }
 
     updateGroupedBooks(currentBookShelfState) {
