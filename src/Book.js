@@ -8,7 +8,6 @@ class Book extends Component {
     static propTypes = {
         book: PropTypes.object.isRequired,
         onBookShelfChange: PropTypes.func.isRequired,
-        dontChangeWhen: PropTypes.string
     }
 
     constructor(props) {
@@ -20,10 +19,10 @@ class Book extends Component {
     }
 
     handleChange(e) {
-        const { book, dontChangeWhen } = this.props;
-        const { value } = e.target;
         e.preventDefault();
-        if (value !== dontChangeWhen) {
+        const { book } = this.props;
+        const { value } = e.target;
+        if (book.shelf !== value) {
             new Promise((resolve, reject) => {
                 this.setState({
                     isLoading: true

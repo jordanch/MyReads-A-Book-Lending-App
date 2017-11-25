@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { getAll, update } from "./BooksAPI";
+import { getAll } from "./BooksAPI";
 import { isNullOrUndefined, isEmptyReferenceType } from "./utils/type";
 import BookShelfSection from "./BookShelfSection";
 
@@ -9,83 +9,33 @@ class Overview extends Component {
 
     static propTypes = {
         appName: PropTypes.string.isRequired,
-        setAllBooks: PropTypes.function.isRequired
+        setAllBooks: PropTypes.func.isRequired,
+        books: PropTypes.array.isRequired,
+        handleBookShelfChange: PropTypes.func.isRequired
     };
 
     constructor(props) {
         super(props);
-        this.handleBookShelfChange = this.handleBookShelfChange.bind(this);
+        this.state = {
+            isLoading: true
+        }
     }
 
     state = {
-        groupedBooks: null,
         isLoading: false
     }
 
-    shelfIdNameMap = {
-        'wantToRead': 'Want to Read',
-        'read': 'Read',
-        'currentlyReading': 'Currently Reading'
-    }
-
     componentDidMount() {
-        this.setState({
-            isLoading: true
-        });
         getAll().then(books => {
             this.props.setAllBooks(books);
-        })
-    }
-
-    updateGroupedBooks(currentBookShelfState) {
-        const { groupedBooks } = this.state;
-        const allBooks = Object.keys(groupedBooks)
-            .map(shelfKey => groupedBooks[shelfKey])
-            .reduce((acc, curr) => {
-                acc = acc.concat(curr);
-                return acc;
-            }, [])
-
-        const updatedGroupedBooks = {};
-        Object.keys(currentBookShelfState).forEach(shelfKey => {
-            updatedGroupedBooks[shelfKey] = currentBookShelfState[shelfKey]
-                .map(getBook)
-                .map(updateBookShelf.bind(null, shelfKey))
-                .filter(book => !isNullOrUndefined(book));
-        })
-
-        function getBook(bookId) {
-            const book = allBooks.find(book => book.id === bookId);
-            if (isNullOrUndefined(book)) {
-                null;
-            } else {
-                return book;
-            }
-        }
-
-        function updateBookShelf(shelfId, book) {
-            return Object.assign({}, book, { shelf: shelfId });
-        }
-
-        this.setState({
-            groupedBooks: updatedGroupedBooks
-        });
-    }
-
-    handleBookShelfChange(client, callBack) {
-        this.setState({ isLoading: true });
-        update(client.book, client.shelf).then(groupResponse => {
-            this.updateGroupedBooks(groupResponse);
-            callBack();
             this.setState({
                 isLoading: false
             });
         })
-
     }
 
     render() {
-        const { groupedBooks } = this.state;
+        const { books } = this.props;
 
         const Header = () => {
             return (
@@ -102,27 +52,25 @@ class Overview extends Component {
         )
 
         const Books = () => {
-            if (isEmptyReferenceType(groupedBooks) || isNullOrUndefined(groupedBooks)) {
-                return null;
-            } else {
-                return (
-                    <div className="list-books-content">
-                        {
-                            Object.keys(groupedBooks).map(sectionId => {
-                                return (
-                                    <BookShelfSection
-                                        key={sectionId}
-                                        className="bookshelf"
-                                        sectionName={this.shelfIdNameMap[sectionId]}
-                                        books={groupedBooks[sectionId]}
-                                        onBookShelfChange={this.handleBookShelfChange}
-                                    />
-                                )
-                            })
-                        }
-                    </div>
-                )
-            }
+            return (
+                <div className="list-books-content">
+                    <BookShelfSection
+                        className="bookshelf"
+                        sectionName="Currently Reading"
+                        books={books.filter(book => book.shelf === 'currentlyReading')}
+                        onBookShelfChange={this.props.handleBookShelfChange} />
+                    <BookShelfSection
+                        className="bookshelf"
+                        sectionName="Want To Read"
+                        books={books.filter(book => book.shelf === 'wantToRead')}
+                        onBookShelfChange={this.props.handleBookShelfChange} />
+                    <BookShelfSection
+                        className="bookshelf"
+                        sectionName="Read"
+                        books={books.filter(book => book.shelf === 'read')}
+                        onBookShelfChange={this.props.handleBookShelfChange} />
+                </div>
+            )
         }
 
         const { isLoading } = this.state;
