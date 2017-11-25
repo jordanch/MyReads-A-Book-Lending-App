@@ -9,7 +9,7 @@ class Overview extends Component {
 
     static propTypes = {
         appName: PropTypes.string.isRequired,
-        setAllBooks: PropTypes.func.isRequired,
+        updateBooks: PropTypes.func.isRequired,
         books: PropTypes.array.isRequired,
         handleBookShelfChange: PropTypes.func.isRequired
     };
@@ -27,7 +27,7 @@ class Overview extends Component {
 
     componentDidMount() {
         getAll().then(books => {
-            this.props.setAllBooks(books);
+            this.props.updateBooks(books);
             this.setState({
                 isLoading: false
             });

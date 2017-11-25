@@ -23,6 +23,7 @@ class Book extends Component {
         const { book } = this.props;
         const { value } = e.target;
         if (book.shelf !== value) {
+            // pass a resolve callback to the bookShelfChangeHandler, call when data returns to indicate loading end.
             new Promise((resolve, reject) => {
                 this.setState({
                     isLoading: true
