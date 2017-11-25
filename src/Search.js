@@ -6,21 +6,25 @@ import Book from "./Book";
 import debounce from "lodash.debounce";
 import escapedString from "escape-string-regexp";
 import "./Search.css";
+import { buildBookIdShelfMap } from "./utils/functional"
 
 class Search extends Component {
 
     static propTypes = {
-        history: PropTypes.object.isRequired
+        history: PropTypes.object,
+        books: PropTypes.array,
     }
 
     constructor(props) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
+        this.makeSearch = this.makeSearch.bind(this);
         this.makeSearch = debounce(this.makeSearch.bind(this), 1000, {
             leading: false,
             trailing: true
         });
         this.handleBookShelfChangeRequest = this.handleBookShelfChangeRequest.bind(this);
+        this.applyCurrentShelfState = this.applyCurrentShelfState.bind(this);
     }
 
     state = {
@@ -32,6 +36,7 @@ class Search extends Component {
     handleChange(e) {
         const value = escapedString(e.target.value);
         e.preventDefault();
+        //todo: what is rejectedResponse for??
         if (value !== '') {
             this.rejectResponse = false;
             this.setState({
@@ -52,6 +57,7 @@ class Search extends Component {
     handleBookShelfChangeRequest(client) {
         if (client.shelf !== 'none') {
             update(client.book, client.shelf).then(groupResponse => {
+                // change router to /
                 const { history } = this.props;
                 history.push('/');
             });
@@ -59,14 +65,44 @@ class Search extends Component {
     }
 
     makeSearch(query) {
-        search(query).then(books => {
-            if (this.rejectResponse !== true) {
-                this.setState({
-                    matchingBooks: Array.isArray(books) ? books : [],
-                    isFetching: false
-                });
-            }
-        })
+        search(query)
+            .then(matchingBooks => {
+                if (this.rejectResponse !== true) {
+                    // update the response with the books shelf.
+                    this.setState({
+                        matchingBooks: Array.isArray(matchingBooks) ? this.applyCurrentShelfState(matchingBooks) : [],
+                        isFetching: false
+                    });
+                }
+            });
+    }
+
+    // todo: if you navigate to /search first, the functionality of getting book shelf breaks.
+    applyCurrentShelfState(searchResponse) {
+        const { books } = this.props;
+        // ^
+        // |
+        // cheap workaround
+        let currentBookIdBookMap = {};
+        if (books) {
+            currentBookIdBookMap = books.reduce((acc, curr) => {
+                acc[curr.id] = curr;
+
+                return acc;
+            }, {});
+        }
+        // perf: optimize?
+        return searchResponse.map(book => {
+            let matchingBook;
+            matchingBook = currentBookIdBookMap[book.id];
+
+            return Object.assign({}, book, {
+                shelf: matchingBook ? {
+                    shelf: matchingBook.shelf
+                } : 'default'
+            })
+        });
+
     }
 
     render() {
@@ -77,7 +113,7 @@ class Search extends Component {
                     this.state.matchingBooks.map(book => (
                         <li key={book.id}>
                             <Book
-                                book={Object.assign({}, book, { shelf: 'default' })}
+                                book={book}
                                 dontChangeWhen="none"
                                 onBookShelfChange={this.handleBookShelfChangeRequest} />
                         </li>

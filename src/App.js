@@ -7,6 +7,7 @@ import './App.css'
 import Search from "./Search"
 import Overview from "./Overview"
 import groupBy from "lodash.groupby";
+import { buildBookIdShelfMap } from "./utils/functional"
 
 class BooksApp extends React.Component {
 
@@ -21,7 +22,6 @@ class BooksApp extends React.Component {
   }
 
   updateBooks(books) {
-    // const groupedBooks = this.groupBooksByShelf(books);
     this.setState({
       books: books,
     });
@@ -30,7 +30,7 @@ class BooksApp extends React.Component {
   /**
    * Handle User changing a book's shelf.
    * @param {object} client - a book container, itself and the shelf it is changing to.
-   * @param {*} resolve - an optional callback, called after update http put responds.
+   * @param {promise} resolve - an optional callback, called after update http put responds.
    */
 
   handleBookShelfChange(client, resolve) {
@@ -40,13 +40,7 @@ class BooksApp extends React.Component {
     // iterate allBooks (store) and update accordingly by lookup against bookShelfMap.
     update(client.book, client.shelf).then(response => {
       // create a hash with grouped response - bookId: shelf - for quick lookup.
-      const bookIdUpdatedShelfMap = Object.keys(response).reduce((acc, shelfCategory) => {
-        const shelf = shelfCategory;
-        const bookIds = response[shelf];
-        bookIds.forEach(bookId => acc[bookId] = shelf);
-
-        return acc;
-      }, {});
+      const bookIdUpdatedShelfMap = buildBookIdShelfMap(response);
 
       // update all current books.
       const updatedBooks = books.map(book => {
@@ -60,8 +54,9 @@ class BooksApp extends React.Component {
 
       this.updateBooks(updatedBooks);
     });
-
-    resolve();
+    if (resolve) {
+      resolve();
+    }
   }
 
   render() {
@@ -72,7 +67,11 @@ class BooksApp extends React.Component {
       <div className="app" >
         <Route
           exact path="/search"
-          component={Search}
+          render={props => {
+            return (
+              <Search books={books} {...props} />
+            )
+          }}
         />
         <Route
           exact path="/"
