@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { search, update } from "./BooksAPI";
 import Book from "./Book";
 import debounce from "lodash.debounce";
 import escapedString from "escape-string-regexp";
 import "./Search.css";
-import { buildBookIdShelfMap } from "./utils/functional"
 
 class Search extends Component {
 
@@ -97,9 +96,7 @@ class Search extends Component {
             matchingBook = currentBookIdBookMap[book.id];
 
             return Object.assign({}, book, {
-                shelf: matchingBook ? {
-                    shelf: matchingBook.shelf
-                } : 'default'
+                shelf: matchingBook ? matchingBook.shelf: 'default'
             })
         });
 

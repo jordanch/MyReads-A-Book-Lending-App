@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { getAll } from "./BooksAPI";
-import { isNullOrUndefined, isEmptyReferenceType } from "./utils/type";
 import BookShelfSection from "./BookShelfSection";
 
 class Overview extends Component {

@@ -6,7 +6,6 @@ import { update } from "./BooksAPI";
 import './App.css'
 import Search from "./Search"
 import Overview from "./Overview"
-import groupBy from "lodash.groupby";
 import { buildBookIdShelfMap } from "./utils/functional"
 
 class BooksApp extends React.Component {
